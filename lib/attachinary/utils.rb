@@ -14,7 +14,6 @@ module Attachinary
         file = if Rails::VERSION::MAJOR == 3
           Attachinary::File.new hash.slice(*Attachinary::File.attr_accessible[:default].to_a)
         else
-          hash.except!("signature", "created_at", "bytes", "type", "etag", "url", "secure_url", "tags", "pages", "documents")
           permitted_params = ActionController::Parameters.new(hash).permit(:public_id, :version, :width, :height, :format, :resource_type)
           Attachinary::File.new(permitted_params)
         end
@@ -46,7 +45,8 @@ module Attachinary
 
     def self.process_options(options)
       options = options.reverse_merge({
-        accessible: true
+        accessible: true,
+        use_filename: true
       })
       options[:maximum] = 1 if options[:single]
 
@@ -57,6 +57,8 @@ module Attachinary
         options[:plural] = options[:scope].to_s
         options[:singular] = options[:scope].to_s.singularize
       end
+
+      options[:use_filename] = true
 
       options
     end
